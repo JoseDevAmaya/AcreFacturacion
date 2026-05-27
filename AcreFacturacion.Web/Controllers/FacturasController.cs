@@ -4,7 +4,7 @@ using AcreFacturacion.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-
+using AcreFacturacion.Web.Services;
 namespace AcreFacturacion.Web.Controllers
 {
     public class FacturasController : Controller
@@ -12,12 +12,13 @@ namespace AcreFacturacion.Web.Controllers
         private const decimal ISV_RATE = 0.15m;
 
         private readonly ApplicationDbContext _context;
+        private readonly ILogService _logService;
 
-        public FacturasController(ApplicationDbContext context)
+        public FacturasController(ApplicationDbContext context, ILogService logService)
         {
             _context = context;
+            _logService = logService;
         }
-
         public async Task<IActionResult> Index()
         {
             var facturas = await _context.Facturas
@@ -114,14 +115,30 @@ namespace AcreFacturacion.Web.Controllers
 
                 if (producto == null)
                 {
+                    var mensaje = $"Intento fallido de facturación. ProductoId {item.ProductoId} inexistente o inactivo.";
+
                     ModelState.AddModelError("", "Uno de los productos seleccionados no existe o está inactivo.");
+
+                    await _logService.RegistrarAdvertenciaAsync(
+                        mensaje,
+                        origen: "FacturasController.Create"
+                    );
+
                     continue;
                 }
 
                 if (producto.Stock < item.CantidadTotal)
                 {
-                    ModelState.AddModelError("", $"Stock insuficiente para el producto {producto.Nombre}. Stock disponible: {producto.Stock}.");
+                    var mensaje = $"Stock insuficiente para el producto {producto.Nombre}. Solicitado: {item.CantidadTotal}, disponible: {producto.Stock}.";
+
+                    ModelState.AddModelError("", mensaje);
+
+                    await _logService.RegistrarAdvertenciaAsync(
+                        mensaje,
+                        origen: "FacturasController.Create"
+                    );
                 }
+
             }
 
             if (!ModelState.IsValid)
@@ -175,9 +192,16 @@ namespace AcreFacturacion.Web.Controllers
 
                 return RedirectToAction(nameof(Details), new { id = factura.Id });
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+
+                await _logService.RegistrarErrorAsync(
+                    "Error al crear factura.",
+                    ex.ToString(),
+                    "FacturasController.Create"
+                );
+
                 throw;
             }
         }
