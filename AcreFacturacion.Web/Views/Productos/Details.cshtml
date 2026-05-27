@@ -1,0 +1,42 @@
+﻿@model AcreFacturacion.Web.Models.Producto
+
+@{
+    ViewData["Title"] = "Detalle de producto";
+}
+
+<h1>Detalle de producto</h1>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Código</dt>
+            <dd class="col-sm-9">@Model.Codigo</dd>
+
+            <dt class="col-sm-3">Nombre</dt>
+            <dd class="col-sm-9">@Model.Nombre</dd>
+
+            <dt class="col-sm-3">Precio</dt>
+            <dd class="col-sm-9">L @Model.Precio.ToString("N2")</dd>
+
+            <dt class="col-sm-3">Stock</dt>
+            <dd class="col-sm-9">@Model.Stock</dd>
+
+            <dt class="col-sm-3">Estado</dt>
+            <dd class="col-sm-9">
+                @if (Model.Estado)
+                {
+                    <span class="badge bg-success">Activo</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Inactivo</span>
+                }
+            </dd>
+        </dl>
+
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        </div>
+    </div>
+</div>
