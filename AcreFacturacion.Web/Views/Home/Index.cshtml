@@ -1,8 +1,113 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model AcreFacturacion.Web.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="mb-4">
+    <h1 class="mb-0">Panel principal</h1>
+    <p class="text-muted">Resumen general del sistema administrativo.</p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Clientes activos</p>
+                <h2 class="mb-0">@Model.ClientesActivos</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Productos activos</p>
+                <h2 class="mb-0">@Model.ProductosActivos</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Facturas emitidas</p>
+                <h2 class="mb-0">@Model.FacturasEmitidas</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Inventario bajo</p>
+                <h2 class="mb-0">@Model.ProductosInventarioBajo</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Total facturado</p>
+                <h2 class="mb-3">L @Model.TotalFacturado.ToString("N2")</h2>
+                <a asp-controller="Facturas" asp-action="Index" class="btn btn-primary">
+                    Ver facturas
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Últimas facturas</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th class="text-end">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.UltimasFacturas.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">
+                                    No hay facturas registradas.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var factura in Model.UltimasFacturas)
+                            {
+                                <tr>
+                                    <td>@factura.NumeroFactura</td>
+                                   <td>@factura.Cliente</td>
+                                    <td>@factura.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>L @factura.Total.ToString("N2")</td>
+                                    <td class="text-end">
+                                        <a asp-controller="Facturas"
+                                           asp-action="Details"
+                                           asp-route-id="@factura.Id"
+                                           class="btn btn-sm btn-outline-info">
+                                            Ver
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
