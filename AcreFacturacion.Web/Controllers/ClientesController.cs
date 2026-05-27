@@ -2,6 +2,7 @@
 using AcreFacturacion.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AcreFacturacion.Web.ViewModels;
 
 namespace AcreFacturacion.Web.Controllers
 {
@@ -14,9 +15,18 @@ namespace AcreFacturacion.Web.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? buscar)
+        public async Task<IActionResult> Index(string? buscar, int page = 1)
         {
-            var clientesQuery = _context.Clientes.AsQueryable();
+            const int pageSize = 5;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            var clientesQuery = _context.Clientes
+                .AsNoTracking()
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(buscar))
             {
@@ -26,9 +36,9 @@ namespace AcreFacturacion.Web.Controllers
                     (c.Correo != null && c.Correo.Contains(buscar)));
             }
 
-            var clientes = await clientesQuery
-                .OrderByDescending(c => c.FechaRegistro)
-                .ToListAsync();
+            clientesQuery = clientesQuery.OrderByDescending(c => c.FechaRegistro);
+
+            var clientes = await PaginatedList<Cliente>.CreateAsync(clientesQuery, page, pageSize);
 
             ViewBag.Buscar = buscar;
 
@@ -155,6 +165,44 @@ namespace AcreFacturacion.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Desactivar(int id)
+        {
+            var cliente = await _context.Clientes.FindAsync(id);
+
+            if (cliente == null)
+            {
+                return NotFound();
+            }
+
+            cliente.Estado = false;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Cliente desactivado correctamente.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Activar(int id)
+        {
+            var cliente = await _context.Clientes.FindAsync(id);
+
+            if (cliente == null)
+            {
+                return NotFound();
+            }
+
+            cliente.Estado = true;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Cliente activado correctamente.";
+
+            return RedirectToAction(nameof(Index));
+        }
         private async Task<bool> ClienteExists(int id)
         {
             return await _context.Clientes.AnyAsync(c => c.Id == id);

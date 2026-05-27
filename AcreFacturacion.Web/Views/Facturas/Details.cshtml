@@ -11,43 +11,75 @@
     </div>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-        <h1>Factura @Model.NumeroFactura</h1>
-        <p class="text-muted">Detalle de la factura emitida.</p>
+        <h1 class="mb-1">Factura @Model.NumeroFactura</h1>
+        <p class="text-muted mb-0">Comprobante generado por el sistema.</p>
     </div>
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-primary" onclick="window.print()">
+            Imprimir
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </div>
 </div>
 
-<div class="card mb-3">
+<div class="card mb-4">
     <div class="card-body">
-        <dl class="row">
-            <dt class="col-sm-3">Cliente</dt>
-            <dd class="col-sm-9">@Model.Cliente?.Nombre</dd>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <h5 class="mb-3">Datos del cliente</h5>
 
-            <dt class="col-sm-3">Identidad / RTN</dt>
-            <dd class="col-sm-9">@Model.Cliente?.IdentidadRTN</dd>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Cliente</dt>
+                    <dd class="col-sm-8">@Model.Cliente?.Nombre</dd>
 
-            <dt class="col-sm-3">Fecha</dt>
-            <dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</dd>
+                    <dt class="col-sm-4">Identidad / RTN</dt>
+                    <dd class="col-sm-8">@Model.Cliente?.IdentidadRTN</dd>
+                </dl>
+            </div>
 
-            <dt class="col-sm-3">Total</dt>
-            <dd class="col-sm-9"><strong>L @Model.Total.ToString("N2")</strong></dd>
-        </dl>
+            <div class="col-md-6">
+                <h5 class="mb-3">Datos de la factura</h5>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Número</dt>
+                    <dd class="col-sm-8">@Model.NumeroFactura</dd>
+
+                    <dt class="col-sm-4">Fecha</dt>
+                    <dd class="col-sm-8">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-4">Estado</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Anulada)
+                        {
+                            <span class="badge bg-danger">Anulada</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Emitida</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="card">
-    <div class="card-body">
-        <h5>Detalle de productos</h5>
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Detalle de productos</h5>
+    </div>
 
+    <div class="card-body">
         <table class="table table-striped align-middle">
             <thead>
                 <tr>
                     <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Subtotal</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-end">Precio</th>
+                    <th class="text-end">Subtotal</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,30 +87,34 @@
                 {
                     <tr>
                         <td>@detalle.Producto?.Nombre</td>
-                        <td>@detalle.Cantidad</td>
-                        <td>L @detalle.PrecioUnitario.ToString("N2")</td>
-                        <td>L @detalle.Subtotal.ToString("N2")</td>
+                        <td class="text-center">@detalle.Cantidad</td>
+                        <td class="text-end">L @detalle.PrecioUnitario.ToString("N2")</td>
+                        <td class="text-end">L @detalle.Subtotal.ToString("N2")</td>
                     </tr>
                 }
             </tbody>
         </table>
 
-        <div class="row justify-content-end">
+        <div class="row justify-content-end mt-3">
             <div class="col-md-4">
-                <table class="table">
-                    <tr>
-                        <th>Subtotal</th>
-                        <td class="text-end">L @Model.Subtotal.ToString("N2")</td>
-                    </tr>
-                    <tr>
-                        <th>ISV 15%</th>
-                        <td class="text-end">L @Model.Isv.ToString("N2")</td>
-                    </tr>
-                    <tr>
-                        <th>Total</th>
-                        <td class="text-end fw-bold">L @Model.Total.ToString("N2")</td>
-                    </tr>
-                </table>
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Subtotal</strong>
+                        <span>L @Model.Subtotal.ToString("N2")</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>ISV 15%</strong>
+                        <span>L @Model.Isv.ToString("N2")</span>
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between fs-5">
+                        <strong>Total</strong>
+                        <strong>L @Model.Total.ToString("N2")</strong>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -21,11 +21,11 @@ html {
 
 body {
     min-height: 100vh;
-    margin-bottom: 80px;
     background: var(--app-bg);
     color: var(--app-text);
+    display: flex;
+    flex-direction: column;
 }
-
 .app-navbar {
     background: #ffffff;
 }
@@ -56,6 +56,8 @@ body {
 
 .app-container {
     max-width: 1280px;
+    flex: 1 0 auto;
+    padding-bottom: 2rem;
 }
 
 h1 {
@@ -129,10 +131,8 @@ h1 {
 }
 
 .app-footer {
-    position: absolute;
-    bottom: 0;
     width: 100%;
-    white-space: nowrap;
-    line-height: 60px;
     background: #ffffff;
+    padding: 1rem 0;
+    flex-shrink: 0;
 }
