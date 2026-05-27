@@ -1,0 +1,223 @@
+﻿@model AcreFacturacion.Web.ViewModels.FacturaCreateViewModel
+@using AcreFacturacion.Web.Models
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Nueva factura";
+
+    var clientes = ViewBag.Clientes as SelectList;
+    var productos = ViewBag.Productos as List<Producto> ?? new List<Producto>();
+}
+
+<h1>Nueva factura</h1>
+<p class="text-muted">Seleccione un cliente y agregue los productos de la factura.</p>
+
+@if (!productos.Any())
+{
+    <div class="alert alert-warning">
+        No hay productos activos con stock disponible. Debe registrar productos activos antes de facturar.
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="ClienteId" class="form-label"></label>
+                <select asp-for="ClienteId" asp-items="clientes" class="form-select">
+                    <option value="">Seleccione un cliente</option>
+                </select>
+                <span asp-validation-for="ClienteId" class="text-danger"></span>
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5>Productos</h5>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="agregarFila()">Agregar producto</button>
+            </div>
+
+            <table class="table table-bordered align-middle" id="detalleTable">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th style="width: 140px;">Cantidad</th>
+                        <th style="width: 140px;">Precio</th>
+                        <th style="width: 140px;">Subtotal</th>
+                        <th style="width: 90px;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Detalles.Count; i++)
+                    {
+                        <tr>
+                            <td>
+                                <select name="Detalles[@i].ProductoId" class="form-select producto-select" onchange="calcularTotales()">
+                                    <option value="">Seleccione un producto</option>
+                                    @foreach (var producto in productos)
+                                    {
+                                        <option value="@producto.Id"
+                                                selected="@(Model.Detalles[i].ProductoId == producto.Id)"
+                                                data-precio="@producto.Precio.ToString(CultureInfo.InvariantCulture)"
+                                                data-stock="@producto.Stock">
+                                            @producto.Codigo - @producto.Nombre | Stock: @producto.Stock | L @producto.Precio.ToString("N2")
+                                        </option>
+                                    }
+                                </select>
+                            </td>
+                            <td>
+                                <input name="Detalles[@i].Cantidad"
+                                       value="@Model.Detalles[i].Cantidad"
+                                       type="number"
+                                       min="1"
+                                       class="form-control cantidad-input"
+                                       onchange="calcularTotales()"
+                                       onkeyup="calcularTotales()" />
+                            </td>
+                            <td class="precio-text">L 0.00</td>
+                            <td class="subtotal-text">L 0.00</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarFila(this)">Quitar</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="row justify-content-end">
+                <div class="col-md-4">
+                    <table class="table">
+                        <tr>
+                            <th>Subtotal</th>
+                            <td class="text-end" id="subtotalFactura">L 0.00</td>
+                        </tr>
+                        <tr>
+                            <th>ISV 15%</th>
+                            <td class="text-end" id="isvFactura">L 0.00</td>
+                        </tr>
+                        <tr>
+                            <th>Total</th>
+                            <td class="text-end fw-bold" id="totalFactura">L 0.00</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Guardar factura</button>
+                <a asp-action="Index" class="btn btn-secondary">Volver</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        let indiceDetalle = @Model.Detalles.Count;
+
+        function agregarFila() {
+            const tbody = document.querySelector("#detalleTable tbody");
+
+            const fila = document.createElement("tr");
+
+            fila.innerHTML = `
+                <td>
+                    <select name="Detalles[${indiceDetalle}].ProductoId" class="form-select producto-select" onchange="calcularTotales()">
+                        <option value="">Seleccione un producto</option>
+                        @foreach (var producto in productos)
+                        {
+                            <text>
+                                <option value="@producto.Id"
+                                        data-precio="@producto.Precio.ToString(CultureInfo.InvariantCulture)"
+                                        data-stock="@producto.Stock">
+                                    @producto.Codigo - @producto.Nombre | Stock: @producto.Stock | L @producto.Precio.ToString("N2")
+                                </option>
+                            </text>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <input name="Detalles[${indiceDetalle}].Cantidad"
+                           value="1"
+                           type="number"
+                           min="1"
+                           class="form-control cantidad-input"
+                           onchange="calcularTotales()"
+                           onkeyup="calcularTotales()" />
+                </td>
+                <td class="precio-text">L 0.00</td>
+                <td class="subtotal-text">L 0.00</td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarFila(this)">Quitar</button>
+                </td>
+            `;
+
+            tbody.appendChild(fila);
+            indiceDetalle++;
+            calcularTotales();
+        }
+
+        function eliminarFila(button) {
+            const tbody = document.querySelector("#detalleTable tbody");
+
+            if (tbody.rows.length === 1) {
+                alert("La factura debe tener al menos un producto.");
+                return;
+            }
+
+            button.closest("tr").remove();
+            reindexarFilas();
+            calcularTotales();
+        }
+
+        function reindexarFilas() {
+            const filas = document.querySelectorAll("#detalleTable tbody tr");
+
+            filas.forEach((fila, index) => {
+                const producto = fila.querySelector(".producto-select");
+                const cantidad = fila.querySelector(".cantidad-input");
+
+                producto.name = `Detalles[${index}].ProductoId`;
+                cantidad.name = `Detalles[${index}].Cantidad`;
+            });
+
+            indiceDetalle = filas.length;
+        }
+
+        function calcularTotales() {
+            let subtotalFactura = 0;
+
+            document.querySelectorAll("#detalleTable tbody tr").forEach(fila => {
+                const select = fila.querySelector(".producto-select");
+                const cantidadInput = fila.querySelector(".cantidad-input");
+
+                const selectedOption = select.options[select.selectedIndex];
+                const precio = parseFloat(selectedOption?.dataset?.precio || 0);
+                const cantidad = parseInt(cantidadInput.value || 0);
+
+                const subtotal = precio * cantidad;
+
+                fila.querySelector(".precio-text").innerText = `L ${precio.toFixed(2)}`;
+                fila.querySelector(".subtotal-text").innerText = `L ${subtotal.toFixed(2)}`;
+
+                subtotalFactura += subtotal;
+            });
+
+            const isv = subtotalFactura * 0.15;
+            const total = subtotalFactura + isv;
+
+            document.getElementById("subtotalFactura").innerText = `L ${subtotalFactura.toFixed(2)}`;
+            document.getElementById("isvFactura").innerText = `L ${isv.toFixed(2)}`;
+            document.getElementById("totalFactura").innerText = `L ${total.toFixed(2)}`;
+        }
+
+        document.addEventListener("DOMContentLoaded", calcularTotales);
+    </script>
+}
