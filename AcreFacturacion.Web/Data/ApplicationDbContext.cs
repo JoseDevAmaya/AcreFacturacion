@@ -41,7 +41,7 @@ namespace AcreFacturacion.Web.Data
                     .HasMaxLength(120);
 
                 entity.Property(e => e.FechaRegistro)
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
                 entity.Property(e => e.Estado)
                     .HasDefaultValue(true);
@@ -87,7 +87,7 @@ namespace AcreFacturacion.Web.Data
                     .HasMaxLength(30);
 
                 entity.Property(e => e.Fecha)
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                   .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
                 entity.Property(e => e.Subtotal)
                     .HasPrecision(18, 2);
@@ -144,7 +144,7 @@ namespace AcreFacturacion.Web.Data
                 entity.HasKey(e => e.Id);
 
                 entity.Property(e => e.Fecha)
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
                 entity.Property(e => e.Nivel)
                     .IsRequired()
