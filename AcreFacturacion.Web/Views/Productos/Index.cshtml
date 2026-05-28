@@ -9,6 +9,7 @@
         <h1 class="mb-0">Productos</h1>
         <p class="text-muted">Gestión de productos e inventario.</p>
     </div>
+
     <a asp-action="Create" class="btn btn-primary">Nuevo producto</a>
 </div>
 
@@ -27,6 +28,7 @@
                class="form-control"
                placeholder="Buscar por nombre o código" />
     </div>
+
     <div class="col-md-2 d-grid">
         <button type="submit" class="btn btn-outline-primary">Buscar</button>
     </div>
@@ -45,8 +47,9 @@
                     <th class="text-end">Acciones</th>
                 </tr>
             </thead>
+
             <tbody>
-               @if (!Model.Items.Any())
+                @if (!Model.Items.Any())
                 {
                     <tr>
                         <td colspan="6" class="text-center text-muted">
@@ -56,7 +59,7 @@
                 }
                 else
                 {
-                   foreach (var item in Model.Items)
+                    foreach (var item in Model.Items)
                     {
                         <tr>
                             <td>@item.Codigo</td>
@@ -83,18 +86,48 @@
                                 }
                             </td>
                             <td class="text-end">
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Ver</a>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">Editar</a>
+                                <div class="d-inline-flex gap-1">
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-outline-info">
+                                        Ver
+                                    </a>
 
-                                @if (item.Estado)
-                                {
-                                    <form asp-action="Desactivar" asp-route-id="@item.Id" method="post" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('¿Desea desactivar este producto?');">
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-outline-warning">
+                                        Editar
+                                    </a>
+
+                                    @if (item.Estado)
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#estadoProductoModal"
+                                                data-url="@Url.Action("Desactivar", "Productos", new { id = item.Id })"
+                                                data-title="Desactivar producto"
+                                                data-message="¿Desea desactivar el producto @item.Nombre?"
+                                                data-button="Desactivar"
+                                                data-button-class="btn-danger">
                                             Desactivar
                                         </button>
-                                    </form>
-                                }
+                                    }
+                                    else
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-success"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#estadoProductoModal"
+                                                data-url="@Url.Action("Activar", "Productos", new { id = item.Id })"
+                                                data-title="Activar producto"
+                                                data-message="¿Desea activar el producto @item.Nombre?"
+                                                data-button="Activar"
+                                                data-button-class="btn-success">
+                                            Activar
+                                        </button>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }
@@ -103,6 +136,7 @@
         </table>
     </div>
 </div>
+
 @if (Model.TotalPages > 1)
 {
     <nav class="mt-3">
@@ -138,4 +172,67 @@
             </li>
         </ul>
     </nav>
+}
+
+<div class="modal fade" id="estadoProductoModal" tabindex="-1" aria-labelledby="estadoProductoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content app-modal">
+            <form id="estadoProductoForm" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="estadoProductoModalLabel">
+                        Confirmar acción
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p id="estadoProductoMensaje" class="mb-0">
+                        ¿Desea continuar?
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" id="estadoProductoBoton" class="btn btn-danger">
+                        Confirmar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const estadoProductoModal = document.getElementById('estadoProductoModal');
+
+        if (estadoProductoModal) {
+            estadoProductoModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+
+                const url = button.getAttribute('data-url');
+                const title = button.getAttribute('data-title');
+                const message = button.getAttribute('data-message');
+                const buttonText = button.getAttribute('data-button');
+                const buttonClass = button.getAttribute('data-button-class');
+
+                const form = document.getElementById('estadoProductoForm');
+                const modalTitle = document.getElementById('estadoProductoModalLabel');
+                const modalMessage = document.getElementById('estadoProductoMensaje');
+                const confirmButton = document.getElementById('estadoProductoBoton');
+
+                form.setAttribute('action', url);
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+
+                confirmButton.textContent = buttonText;
+                confirmButton.className = 'btn ' + buttonClass;
+            });
+        }
+    </script>
 }

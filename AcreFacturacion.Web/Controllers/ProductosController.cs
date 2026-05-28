@@ -167,6 +167,24 @@ namespace AcreFacturacion.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Activar(int id)
+        {
+            var producto = await _context.Productos.FindAsync(id);
+
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            producto.Estado = true;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Producto activado correctamente.";
+
+            return RedirectToAction(nameof(Index));
+        }
         private async Task<bool> ProductoExists(int id)
         {
             return await _context.Productos.AnyAsync(p => p.Id == id);
