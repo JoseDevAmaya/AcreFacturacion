@@ -1,5 +1,6 @@
 ﻿using AcreFacturacion.Web.Data;
 using AcreFacturacion.Web.Models;
+using AcreFacturacion.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,9 +15,18 @@ namespace AcreFacturacion.Web.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? buscar)
+        public async Task<IActionResult> Index(string? buscar, int page = 1)
         {
-            var productosQuery = _context.Productos.AsQueryable();
+            const int pageSize = 5;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            var productosQuery = _context.Productos
+                .AsNoTracking()
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(buscar))
             {
@@ -25,15 +35,14 @@ namespace AcreFacturacion.Web.Controllers
                     p.Codigo.Contains(buscar));
             }
 
-            var productos = await productosQuery
-                .OrderBy(p => p.Nombre)
-                .ToListAsync();
+            productosQuery = productosQuery.OrderBy(p => p.Nombre);
+
+            var productos = await PaginatedList<Producto>.CreateAsync(productosQuery, page, pageSize);
 
             ViewBag.Buscar = buscar;
 
             return View(productos);
         }
-
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
