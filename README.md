@@ -1,8 +1,15 @@
 # Acre Facturación
 
-Sistema administrativo desarrollado en **ASP.NET Core MVC, Entity Framework Core y MySQL** para gestionar clientes, productos, inventario, facturación básica, reportes y bitácora de eventos.
+Sistema administrativo desarrollado en **ASP.NET Core MVC, Entity Framework Core y MySQL** para gestionar clientes, productos, inventario, facturación, reportes y bitácora de eventos.
 
-El proyecto fue desarrollado como prueba técnica, aplicando buenas prácticas de organización, validaciones, manejo de errores, persistencia con base de datos relacional, control de versiones con Git y documentación técnica.
+El proyecto fue desarrollado como prueba técnica, aplicando buenas prácticas de organización, validaciones, manejo de errores, autenticación, persistencia en base de datos relacional, documentación y control de versiones con Git.
+## Versión final
+
+La versión final del proyecto se encuentra en la rama principal:
+```bash
+master
+```
+Para revisar o ejecutar el sistema, se debe clonar el repositorio y trabajar directamente sobre `master`.
 
 ## Tecnologías utilizadas
 
@@ -20,28 +27,29 @@ El proyecto fue desarrollado como prueba técnica, aplicando buenas prácticas d
 * IMemoryCache
 * Stored Procedures
 * Git / GitHub
-
 ## Funcionalidades principales
 ### Clientes
-
 El sistema permite:
-
 * Crear clientes
 * Editar clientes
 * Listar clientes
 * Buscar clientes por nombre, identidad/RTN o correo
 * Activar y desactivar clientes
 * Validar campos obligatorios
-* Paginación en el listado
+* Paginar el listado
 Campos principales:
+
 * Nombre
 * Identidad / RTN
 * Teléfono
 * Correo
 * Fecha de registro
 * Estado
+
 ### Productos
+
 El sistema permite:
+
 * Crear productos
 * Editar productos
 * Listar productos
@@ -49,20 +57,25 @@ El sistema permite:
 * Activar y desactivar productos
 * Controlar stock disponible
 * Validar datos de entrada
-* Paginación en el listado
+* Paginar el listado
+
 Campos principales:
+
 * Nombre
 * Código
 * Precio
 * Stock
 * Estado
+
+---
+
 ### Facturación
 
 El módulo de facturación permite:
 
 * Crear facturas
 * Seleccionar cliente
-* Agregar múltiples productos
+* Agregar productos
 * Validar stock disponible
 * Calcular subtotal
 * Calcular ISV del 15%
@@ -84,6 +97,8 @@ La factura incluye:
 * ISV
 * Total
 
+---
+
 ### Reportes
 
 El sistema incluye reportes administrativos:
@@ -92,8 +107,7 @@ El sistema incluye reportes administrativos:
 * Clientes con mayor facturación
 * Inventario bajo
 
-Los reportes se encuentran disponibles desde la interfaz web y también mediante procedimientos almacenados SQL
-
+Los reportes están disponibles desde la interfaz web y también mediante procedimientos almacenados SQL.
 ### Logs / Bitácora
 
 El sistema registra eventos relevantes como:
@@ -102,7 +116,8 @@ El sistema registra eventos relevantes como:
 * Excepciones importantes
 * Intentos fallidos de login
 * Stock insuficiente
-* Inicio y cierre de sesión
+* Inicio de sesión
+* Cierre de sesión
 
 Los logs se almacenan en:
 
@@ -113,13 +128,11 @@ Los logs se almacenan en:
 
 El sistema incluye autenticación para proteger las vistas principales.
 
-Usuario inicial:
-
+Credenciales iniciales:
 ```text
 Usuario: admin
 Contraseña: Admin123*
 ```
-
 Características implementadas:
 
 * Login MVC con cookies
@@ -152,6 +165,9 @@ Ejemplo de body para login API:
   "nombreUsuario": "admin",
   "password": "Admin123*"
 }
+```
+
+---
 
 ## Swagger
 
@@ -196,7 +212,7 @@ CALL sp_top_productos_vendidos();
 CALL sp_clientes_mayor_facturacion();
 CALL sp_inventario_bajo();
 CALL sp_facturas_por_fecha('2026-01-01', '2026-12-31');
----
+```
 
 ## Cache
 
@@ -207,9 +223,11 @@ Aplicado en:
 * Dashboard
 * Reportes
 
-No se aplica cache en facturación ni en actualización de inventario, para mantener consistencia en operaciones críticas.
+No se aplica cache en facturación ni en actualización de inventario para mantener consistencia en operaciones
 
-## Estructura del proyecto
+---
+
+## Estructura general del proyecto
 
 ```text
 AcreFacturacion
@@ -264,8 +282,6 @@ Ejemplo:
 }
 ```
 
----
-
 ## Archivos SQL incluidos
 
 Dentro de la carpeta `Database` se incluyen scripts para creación, reportes, procedimientos almacenados y respaldo:
@@ -276,9 +292,6 @@ AcreFacturacion.Web/Database/02_reportes.sql
 AcreFacturacion.Web/Database/03_stored_procedures.sql
 AcreFacturacion.Web/Database/backup_acrefacturacion_final.sql
 ```
-
----
-
 ## Cómo ejecutar el proyecto
 
 ### 1. Clonar el repositorio
@@ -287,14 +300,20 @@ AcreFacturacion.Web/Database/backup_acrefacturacion_final.sql
 git clone https://github.com/JoseDevAmaya/AcreFacturacion.git
 cd AcreFacturacion
 ```
-### 2. Restaurar paquetes
+
+### 2. Entrar al proyecto web
 
 ```bash
 cd AcreFacturacion.Web
+```
+
+### 3. Restaurar paquetes
+
+```bash
 dotnet restore
 ```
 
-### 3. Configurar la cadena de conexión
+### 4. Configurar la cadena de conexión
 
 Editar el archivo:
 
@@ -304,13 +323,13 @@ AcreFacturacion.Web/appsettings.json
 
 Configurar los datos de conexión a MySQL.
 
-### 4. Aplicar migraciones
+### 5. Aplicar migraciones
 
 ```bash
 dotnet ef database update
 ```
 
-### 5. Ejecutar
+### 6. Ejecutar el proyecto
 
 ```bash
 dotnet run
@@ -335,6 +354,18 @@ http://localhost:5000
 ```text
 Usuario: admin
 Contraseña: Admin123*
+```
+
+### Procedimientos almacenados
+
+En MySQL:
+
+```sql
+CALL sp_top_productos_vendidos();
+CALL sp_clientes_mayor_facturacion();
+CALL sp_inventario_bajo();
+CALL sp_facturas_por_fecha('2026-01-01', '2026-12-31');
+```
 
 ## Decisiones técnicas
 
@@ -366,3 +397,42 @@ Se implementó una bitácora para registrar eventos importantes tanto en base de
 
 Se aplicó cache únicamente en consultas de lectura, evitando usarlo en facturación o inventario para no comprometer la consistencia de datos.
 
+---
+
+## Pregunta adicional: lentitud al listar facturas con muchos registros
+
+Para investigar lentitud al listar facturas con muchos registros, realizaría los siguientes pasos:
+
+1. Revisar la consulta generada por Entity Framework Core.
+2. Verificar si se están cargando relaciones innecesarias.
+3. Confirmar que exista paginación del lado del servidor.
+4. Revisar índices en columnas usadas para búsqueda, ordenamiento y relaciones:
+
+   * `Facturas.Fecha`
+   * `Facturas.ClienteId`
+   * `Facturas.NumeroFactura`
+   * `FacturaDetalles.FacturaId`
+5. Usar `EXPLAIN` en MySQL para analizar el plan de ejecución.
+6. Evitar cargar todos los registros en memoria antes de filtrar.
+7. Usar `AsNoTracking()` en consultas de solo lectura.
+8. Aplicar proyecciones a ViewModels para traer solo las columnas necesarias.
+9. Agregar filtros por rango de fechas.
+10. Mantener paginación obligatoria en listados grandes.
+
+Una mejora adicional sería permitir filtros por cliente, fecha y número de factura, junto con índices específicos para esos campos.
+
+---
+
+## Mejoras futuras
+
+* Agregar roles de usuario.
+* Agregar auditoría completa de cambios.
+* Agregar pruebas unitarias.
+* Dockerizar aplicación y base de datos.
+* Agregar exportación de reportes a PDF o Excel.
+* Implementar CI/CD con GitHub Actions.
+* Publicar en nube.
+* Agregar logs estructurados con Serilog.
+* Mejorar detalles visuales de las vistas principales.
+
+@JOSE OLIVEROS 
