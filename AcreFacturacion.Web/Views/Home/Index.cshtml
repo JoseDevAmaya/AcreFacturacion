@@ -9,8 +9,8 @@
     <p class="text-muted">Resumen general del sistema administrativo.</p>
 </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-3 mb-4">
+    <div class="col">
         <div class="card h-100">
             <div class="card-body">
                 <p class="text-muted mb-1">Clientes activos</p>
@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col">
         <div class="card h-100">
             <div class="card-body">
                 <p class="text-muted mb-1">Productos activos</p>
@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col">
         <div class="card h-100">
             <div class="card-body">
                 <p class="text-muted mb-1">Facturas emitidas</p>
@@ -37,7 +37,7 @@
         </div>
     </div>
 
-    <div class="col-md-3">
+    <div class="col">
         <div class="card h-100">
             <div class="card-body">
                 <p class="text-muted mb-1">Inventario bajo</p>
@@ -45,26 +45,26 @@
             </div>
         </div>
     </div>
-</div>
 
-<div class="row g-4">
-    <div class="col-md-4">
+    <div class="col">
         <div class="card h-100">
             <div class="card-body">
                 <p class="text-muted mb-1">Total facturado</p>
-                <h2 class="mb-3">L @Model.TotalFacturado.ToString("N2")</h2>
-                <a asp-controller="Facturas" asp-action="Index" class="btn btn-primary">
-                    Ver facturas
-                </a>
+                <h4 class="mb-0">
+                    L @Model.TotalFacturado.ToString("#,##0.00")
+                </h4>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="col-md-8">
+<div class="row g-4">
+    <div class="col-12">
         <div class="card h-100">
             <div class="card-header bg-white">
                 <h5 class="mb-0">Últimas facturas</h5>
             </div>
+
             <div class="card-body">
                 <table class="table table-striped align-middle">
                     <thead>
@@ -72,7 +72,7 @@
                             <th>Número</th>
                             <th>Cliente</th>
                             <th>Fecha</th>
-                            <th>Total</th>
+                            <th class="text-end">Total</th>
                             <th class="text-end">Acción</th>
                         </tr>
                     </thead>
@@ -91,9 +91,9 @@
                             {
                                 <tr>
                                     <td>@factura.NumeroFactura</td>
-                                   <td>@factura.Cliente</td>
+                                    <td>@factura.Cliente</td>
                                     <td>@factura.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
-                                    <td>L @factura.Total.ToString("N2")</td>
+                                    <td class="text-end">L @factura.Total.ToString("#,##0.00")</td>
                                     <td class="text-end">
                                         <a asp-controller="Facturas"
                                            asp-action="Details"
