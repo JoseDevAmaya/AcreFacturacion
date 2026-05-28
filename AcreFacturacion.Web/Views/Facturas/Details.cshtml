@@ -1,7 +1,9 @@
 @model AcreFacturacion.Web.Models.Factura
+@using System.Globalization
 
 @{
     ViewData["Title"] = "Detalle de factura";
+    var moneda = CultureInfo.InvariantCulture;
 }
 
 @if (TempData["Success"] != null)
@@ -14,14 +16,17 @@
 <div class="d-flex justify-content-between align-items-start mb-4 no-print">
     <div>
         <h1 class="mb-1">Factura @Model.NumeroFactura</h1>
-        <p class="text-muted mb-0">Comprobante generado por el sistema.</p>
+        <p class="text-muted mb-0">Detalle de la factura emitida.</p>
     </div>
 
     <div class="d-flex gap-2">
-        <button type="button" class="btn btn-outline-primary" onclick="window.print()">
-            Imprimir
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Volver
+        </a>
+
+        <button type="button" class="btn btn-primary" onclick="window.print()">
+            Imprimir factura
         </button>
-        <a asp-action="Index" class="btn btn-secondary">Volver</a>
     </div>
 </div>
 
@@ -29,8 +34,9 @@
     <div class="invoice-header mb-4">
         <div>
             <h2 class="mb-1">Acre Facturación</h2>
-            <p class="text-muted mb-0">Sistema administrativo C# / MySQL</p>
+            <p class="text-muted mb-0">Sistema administrativo de facturación</p>
         </div>
+
         <div class="text-end">
             <h3 class="mb-1">Factura</h3>
             <strong>@Model.NumeroFactura</strong>
@@ -39,31 +45,19 @@
 
     <div class="card mb-4 invoice-card">
         <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <h5 class="mb-3">Datos del cliente</h5>
-
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4">Cliente</dt>
-                        <dd class="col-sm-8">@Model.Cliente?.Nombre</dd>
-
-                        <dt class="col-sm-4">Identidad / RTN</dt>
-                        <dd class="col-sm-8">@Model.Cliente?.IdentidadRTN</dd>
-                    </dl>
-                </div>
-
+            <div class="row g-4">
                 <div class="col-md-6">
                     <h5 class="mb-3">Datos de la factura</h5>
 
                     <dl class="row mb-0">
-                        <dt class="col-sm-4">Número</dt>
-                        <dd class="col-sm-8">@Model.NumeroFactura</dd>
+                        <dt class="col-sm-5">Número</dt>
+                        <dd class="col-sm-7">@Model.NumeroFactura</dd>
 
-                        <dt class="col-sm-4">Fecha</dt>
-                        <dd class="col-sm-8">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</dd>
+                        <dt class="col-sm-5">Fecha</dt>
+                        <dd class="col-sm-7">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</dd>
 
-                        <dt class="col-sm-4">Estado</dt>
-                        <dd class="col-sm-8">
+                        <dt class="col-sm-5">Estado</dt>
+                        <dd class="col-sm-7">
                             @if (Model.Anulada)
                             {
                                 <span class="badge bg-danger">Anulada</span>
@@ -73,6 +67,18 @@
                                 <span class="badge bg-success">Emitida</span>
                             }
                         </dd>
+                    </dl>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="mb-3">Datos del cliente</h5>
+
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Cliente</dt>
+                        <dd class="col-sm-7">@Model.Cliente?.Nombre</dd>
+
+                        <dt class="col-sm-5">Identidad / RTN</dt>
+                        <dd class="col-sm-7">@Model.Cliente?.IdentidadRTN</dd>
                     </dl>
                 </div>
             </div>
@@ -88,10 +94,10 @@
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
-                        <th>Producto</th>
-                        <th class="text-center">Cantidad</th>
-                        <th class="text-end">Precio</th>
-                        <th class="text-end">Subtotal</th>
+                        <th style="width: 45%;">Producto</th>
+                        <th class="text-center" style="width: 15%;">Cantidad</th>
+                        <th class="text-end" style="width: 20%;">Precio unitario</th>
+                        <th class="text-end" style="width: 20%;">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -99,32 +105,32 @@
                     {
                         <tr>
                             <td>@detalle.Producto?.Nombre</td>
-                            <td class="text-center">@detalle.Cantidad</td>
-                            <td class="text-end">L @detalle.PrecioUnitario.ToString("N2")</td>
-                            <td class="text-end">L @detalle.Subtotal.ToString("N2")</td>
+                            <td class="text-center">@detalle.Cantidad.ToString("#,##0", moneda)</td>
+                            <td class="text-end">L @detalle.PrecioUnitario.ToString("#,##0.00", moneda)</td>
+                            <td class="text-end">L @detalle.Subtotal.ToString("#,##0.00", moneda)</td>
                         </tr>
                     }
                 </tbody>
             </table>
 
             <div class="row justify-content-end mt-3">
-                <div class="col-md-4">
+                <div class="col-md-5 col-lg-4">
                     <div class="border rounded-3 p-3 invoice-total-box">
                         <div class="d-flex justify-content-between mb-2">
                             <strong>Subtotal</strong>
-                            <span>L @Model.Subtotal.ToString("N2")</span>
+                            <span>L @Model.Subtotal.ToString("#,##0.00", moneda)</span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
                             <strong>ISV 15%</strong>
-                            <span>L @Model.Isv.ToString("N2")</span>
+                            <span>L @Model.Isv.ToString("#,##0.00", moneda)</span>
                         </div>
 
                         <hr />
 
                         <div class="d-flex justify-content-between fs-5">
                             <strong>Total</strong>
-                            <strong>L @Model.Total.ToString("N2")</strong>
+                            <strong>L @Model.Total.ToString("#,##0.00", moneda)</strong>
                         </div>
                     </div>
                 </div>
@@ -134,7 +140,7 @@
 
     <div class="invoice-footer mt-4">
         <p class="mb-0 text-muted">
-            Documento generado automáticamente por Acre Facturación.
+          Comprobante emitido por Acre Facturación.
         </p>
     </div>
 </div>
