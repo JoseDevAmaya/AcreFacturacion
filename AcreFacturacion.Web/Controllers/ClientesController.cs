@@ -1,11 +1,13 @@
 ﻿using AcreFacturacion.Web.Data;
 using AcreFacturacion.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AcreFacturacion.Web.ViewModels;
 
 namespace AcreFacturacion.Web.Controllers
 {
+    [Authorize]
     public class ClientesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -28,19 +30,30 @@ namespace AcreFacturacion.Web.Controllers
                 .AsNoTracking()
                 .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(buscar))
+            var terminoBusqueda = buscar?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(terminoBusqueda))
             {
-                clientesQuery = clientesQuery.Where(c =>
-                    c.Nombre.Contains(buscar) ||
-                    c.IdentidadRTN.Contains(buscar) ||
-                    (c.Correo != null && c.Correo.Contains(buscar)));
+                var filtros = terminoBusqueda
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+                foreach (var filtroOriginal in filtros)
+                {
+                    var filtro = filtroOriginal.ToLower();
+
+                    clientesQuery = clientesQuery.Where(c =>
+                        c.Nombre.ToLower().Contains(filtro) ||
+                        c.IdentidadRTN.ToLower().Contains(filtro) ||
+                        (c.Correo != null && c.Correo.ToLower().Contains(filtro)) ||
+                        (c.Telefono != null && c.Telefono.ToLower().Contains(filtro)));
+                }
             }
 
             clientesQuery = clientesQuery.OrderByDescending(c => c.FechaRegistro);
 
             var clientes = await PaginatedList<Cliente>.CreateAsync(clientesQuery, page, pageSize);
 
-            ViewBag.Buscar = buscar;
+            ViewBag.Buscar = terminoBusqueda;
 
             return View(clientes);
         }

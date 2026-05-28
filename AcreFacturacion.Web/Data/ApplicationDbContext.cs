@@ -15,6 +15,7 @@ namespace AcreFacturacion.Web.Data
         public DbSet<Factura> Facturas { get; set; }
         public DbSet<FacturaDetalle> FacturaDetalles { get; set; }
         public DbSet<ErrorLog> ErrorLogs { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -162,6 +163,32 @@ namespace AcreFacturacion.Web.Data
 
                 entity.HasIndex(e => e.Fecha);
                 entity.HasIndex(e => e.Nivel);
+            });
+
+            modelBuilder.Entity<Usuario>(entity =>
+            {
+                entity.ToTable("Usuarios");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.NombreUsuario)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.PasswordHash)
+                    .IsRequired()
+                    .HasMaxLength(256);
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(150);
+
+                entity.Property(e => e.Estado)
+                    .HasDefaultValue(true);
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                entity.HasIndex(e => e.NombreUsuario).IsUnique();
             });
         }
     }

@@ -21,7 +21,7 @@
 }
 
 <form asp-action="Index" method="get" class="row g-2 mb-3">
-    <div class="col-md-10">
+    <div class="col-md-8">
         <input type="text"
                name="buscar"
                value="@ViewBag.Buscar"
@@ -31,6 +31,10 @@
 
     <div class="col-md-2 d-grid">
         <button type="submit" class="btn btn-outline-primary">Buscar</button>
+    </div>
+
+    <div class="col-md-2 d-grid">
+        <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
     </div>
 </form>
 

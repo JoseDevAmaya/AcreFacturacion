@@ -1,11 +1,13 @@
 ﻿using AcreFacturacion.Web.Data;
 using AcreFacturacion.Web.Models;
 using AcreFacturacion.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AcreFacturacion.Web.Controllers
 {
+    [Authorize]
     public class ProductosController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -28,18 +30,28 @@ namespace AcreFacturacion.Web.Controllers
                 .AsNoTracking()
                 .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(buscar))
+            var terminoBusqueda = buscar?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(terminoBusqueda))
             {
-                productosQuery = productosQuery.Where(p =>
-                    p.Nombre.Contains(buscar) ||
-                    p.Codigo.Contains(buscar));
+                var filtros = terminoBusqueda
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+                foreach (var filtroOriginal in filtros)
+                {
+                    var filtro = filtroOriginal.ToLower();
+
+                    productosQuery = productosQuery.Where(p =>
+                        p.Nombre.ToLower().Contains(filtro) ||
+                        p.Codigo.ToLower().Contains(filtro));
+                }
             }
 
             productosQuery = productosQuery.OrderBy(p => p.Nombre);
 
             var productos = await PaginatedList<Producto>.CreateAsync(productosQuery, page, pageSize);
 
-            ViewBag.Buscar = buscar;
+            ViewBag.Buscar = terminoBusqueda;
 
             return View(productos);
         }
@@ -185,6 +197,7 @@ namespace AcreFacturacion.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
         private async Task<bool> ProductoExists(int id)
         {
             return await _context.Productos.AnyAsync(p => p.Id == id);

@@ -1,6 +1,7 @@
 ﻿using AcreFacturacion.Web.Data;
 using AcreFacturacion.Web.Models;
 using AcreFacturacion.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using AcreFacturacion.Web.Services;
 
 namespace AcreFacturacion.Web.Controllers
 {
+    [Authorize]
     public class FacturasController : Controller
     {
         private const decimal ISV_RATE = 0.15m;
