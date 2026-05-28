@@ -114,6 +114,24 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="facturaMensajeModal" tabindex="-1" aria-labelledby="facturaMensajeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content app-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="facturaMensajeModalLabel">Validación de factura</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p id="facturaMensajeTexto" class="mb-0">Revise la información de la factura.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -121,6 +139,20 @@
 
     <script>
         let indiceDetalle = @Model.Detalles.Count;
+
+        function mostrarMensajeFactura(mensaje) {
+            const texto = document.getElementById("facturaMensajeTexto");
+            const modalElement = document.getElementById("facturaMensajeModal");
+
+            if (texto) {
+                texto.textContent = mensaje;
+            }
+
+            if (modalElement && window.bootstrap) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+                modal.show();
+            }
+        }
 
         function agregarFila() {
             const tbody = document.querySelector("#detalleTable tbody");
@@ -168,7 +200,7 @@
             const tbody = document.querySelector("#detalleTable tbody");
 
             if (tbody.rows.length === 1) {
-                alert("La factura debe tener al menos un producto.");
+                mostrarMensajeFactura("La factura debe tener al menos un producto.");
                 return;
             }
 

@@ -1,0 +1,53 @@
+@model AcreFacturacion.Web.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm login-card">
+            <div class="card-header text-center py-3">
+                <h5 class="mb-0 fw-bold">Acre Facturación</h5>
+                <small class="text-muted">Sistema administrativo</small>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+                    }
+
+                    <div class="mb-3">
+                        <label asp-for="NombreUsuario" class="form-label fw-semibold"></label>
+                        <input asp-for="NombreUsuario"
+                               class="form-control"
+                               placeholder="Ingrese su usuario"
+                               autofocus
+                               autocomplete="username" />
+                        <span asp-validation-for="NombreUsuario" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label fw-semibold"></label>
+                        <input asp-for="Password"
+                               class="form-control"
+                               placeholder="Ingrese su contraseña"
+                               autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

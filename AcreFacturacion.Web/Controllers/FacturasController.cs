@@ -1,12 +1,15 @@
 ﻿using AcreFacturacion.Web.Data;
 using AcreFacturacion.Web.Models;
 using AcreFacturacion.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AcreFacturacion.Web.Services;
+
 namespace AcreFacturacion.Web.Controllers
 {
+    [Authorize]
     public class FacturasController : Controller
     {
         private const decimal ISV_RATE = 0.15m;
@@ -19,16 +22,25 @@ namespace AcreFacturacion.Web.Controllers
             _context = context;
             _logService = logService;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var facturas = await _context.Facturas
+            const int pageSize = 5;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            var facturasQuery = _context.Facturas
+                .AsNoTracking()
                 .Include(f => f.Cliente)
                 .OrderByDescending(f => f.Fecha)
-                .ToListAsync();
+                .AsQueryable();
+
+            var facturas = await PaginatedList<Factura>.CreateAsync(facturasQuery, page, pageSize);
 
             return View(facturas);
         }
-
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
