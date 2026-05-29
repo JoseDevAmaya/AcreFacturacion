@@ -174,9 +174,7 @@ Los logs se almacenan en:
 
 * Tabla `ErrorLogs`
 * Archivos `.txt` dentro de la carpeta `Logs`
-
----
-
+* 
 ## Seguridad y autenticación
 
 El sistema incluye autenticación para proteger las vistas principales.
@@ -355,7 +353,7 @@ Ejemplo de cadena de conexión:
 }
 ```
 
-Si el evaluador utiliza otro usuario o contraseña de MySQL, debe actualizar el valor de `DefaultConnection` en `appsettings.json`.
+Si se  utiliza otro usuario o contraseña de MySQL, debe actualizar el valor de `DefaultConnection` en `appsettings.json`.
 
 ---
 
@@ -588,53 +586,6 @@ http://localhost:5000
 ```text
 Usuario: admin
 Contraseña: Admin123*
-```
-
----
-
-## Pruebas recomendadas
-
-### Flujo MVC
-
-1. Iniciar sesión.
-2. Revisar el panel principal.
-3. Crear un cliente.
-4. Crear un producto.
-5. Crear una factura.
-6. Validar cálculo de subtotal, ISV y total.
-7. Confirmar descuento automático de inventario.
-8. Revisar reportes.
-9. Imprimir detalle de factura.
-10. Cerrar sesión.
-11. Intentar acceder a una ruta protegida sin sesión.
-
-### Flujo API / JWT
-
-1. Abrir `/swagger`.
-2. Ejecutar `POST /api/auth/login`.
-3. Copiar el token generado.
-4. Autorizar Swagger con Bearer Token.
-5. Probar:
-
-   * `GET /api/clientes`
-   * `GET /api/productos`
-   * `GET /api/reportes/inventario-bajo`
-6. Confirmar respuesta `200 OK`.
-7. Probar sin token y confirmar respuesta `401 Unauthorized`.
-
-### Procedimientos almacenados
-
-En MySQL:
-
-```sql
-CALL sp_top_productos_vendidos();
-CALL sp_clientes_mayor_facturacion();
-CALL sp_inventario_bajo();
-CALL sp_facturas_por_fecha('2026-01-01', '2026-12-31');
-```
-
----
-
 ## Decisiones técnicas
 
 ### ASP.NET Core MVC
@@ -646,7 +597,6 @@ Se utilizó MVC para construir un sistema administrativo con separación clara e
 Se usó EF Core para manejar el acceso a datos, relaciones, migraciones, restricciones e índices.
 
 ### MySQL
-
 La base de datos se diseñó en MySQL, cumpliendo con el requerimiento de trabajar con una base relacional, llaves primarias, foráneas e índices.
 
 ### Autenticación por cookies
